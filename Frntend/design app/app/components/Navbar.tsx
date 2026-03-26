@@ -26,7 +26,7 @@ export function MainNavbar() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   return (
