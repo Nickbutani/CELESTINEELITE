@@ -14,6 +14,7 @@ import {
   NavbarToggle,
   Button,
 } from "flowbite-react";
+import { getDark } from "flowbite-react/store";
 
 export function MainNavbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -66,7 +67,7 @@ export function MainNavbar() {
             <Button size="sm" as="a" href="/login" color="light">
               Login
             </Button>
-            <Button size="sm" as="a" href="/signup">
+            <Button size="sm" as="a"  href="/signup" color ="dark">
               Sign Up
             </Button>
           </>
