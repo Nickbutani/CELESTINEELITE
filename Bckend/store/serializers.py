@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, CartItem
+from .models import Product, CartItem, Order, OrderItem
 from django.contrib.auth.models import User
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -18,13 +18,52 @@ class CartItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         product_id = validated_data.pop('product_id')
         product = Product.objects.get(id=product_id)
-        return CartItem.objects.create(product=product, **validated_data)
+        validated_data['product'] = product
+        return CartItem.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        product_id = validated_data.pop('product_id', None)
+        if product_id:
+            product = Product.objects.get(id=product_id)
+            validated_data['product'] = product
+        return super().update(instance, validated_data)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
         
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    item_data = serializers.ListField(
+        write_only=True
+    )  
+
+    class Meta:
+        model = Order
+        fields = ['id', 'items', 'item_data', 'total', 'status', 'created_at']
+
+    def create(self, validated_data):
+        item_data = validated_data.pop('item_data')
+        order = Order.objects.create(user=self.context['request'].user, **validated_data)
+        for item in item_data:
+            product = Product.objects.get(id=item['product_id'])
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=item['quantity'],
+                price=product.price
+            )
+            # Deduct stock
+            product.stock -= item['quantity']
+            product.save()
+        return order
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
