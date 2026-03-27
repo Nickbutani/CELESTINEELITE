@@ -14,7 +14,7 @@ import {
   NavbarToggle,
   Button,
 } from "flowbite-react";
-import { getDark } from "flowbite-react/store";
+
 
 export function MainNavbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,7 +31,7 @@ export function MainNavbar() {
   };
 
   return (
-    <Navbar fluid rounded>
+    <Navbar fluid rounded className="sticky top-0 z-50 shadow-sm">
       <NavbarBrand>
         <span className="text-xl font-semibold dark:text-white">
           CELESTINEELITE
